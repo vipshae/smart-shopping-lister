@@ -1,57 +1,63 @@
-<script>
-	let newItem = '';
-	let count = 0;
-	/**
-	 * @type {any[]}
-	 */
-	let ItemList = [];
-	function addItem() {
-		ItemList = [
-			...ItemList,
-			{
-				id: count,
-				itemName: newItem,
-				completed: false
-			}
-		];
-		newItem = '';
-	}
+<script lang="ts">
+	import { applyAction, enhance } from '$app/forms';
+	import type { ActionData } from './$types';
+	import { page } from '$app/stores';
+	
+	let isSaving = false;
+	let isSaved = false;
+	let shoppingListName: string;
+	export let form: ActionData;
+	$: console.log($page.form, $page.status)
 
-	$: count = ItemList.length;
-	$: remainingItems = ItemList.filter((item) => !item.completed).length;
-
-	/**
-	 * @param {number} index
-	 */
-	function deleteItem(index) {
-		ItemList.splice(index, 1);
-		ItemList = ItemList;
-	}
-
-	function clearCompleted() {
-		ItemList = ItemList.filter((item) => !item.completed);
-	}
 </script>
+
+<svelte:head>
+  <title>Shopping Lister App 📝</title>
+</svelte:head>
+
+{#if form?.error}
+	<p class="error">{form?.error}</p>
+{/if}
+
+{#if isSaved && shoppingListName}
+	<p class="success">Shopping List {shoppingListName} saved successfully!</p>
+	<form method="POST" action="?/addItems&shoppingListId={shoppingListName}">
+		<button class="add-items" type="submit">Add Items</button>
+	</form>
+{/if}
 
 <main>
 	<!-- Form -->
-	<form>
-		<input bind:value={newItem} placeholder="Enter an item to buy" />
-		<button class="add-item" on:click={addItem}><span>+</span></button>
+	<form method="POST" action="?/createList" use:enhance={({ form, data }) => {
+		// Before form submission to server, optimistic UI
+		isSaving = true;
+		isSaved = false;
+		form.reset();
+		return async ({ result, update }) => {
+			// After list creation
+			isSaving = false;
+			if (result.type === 'failure') {
+				await applyAction(result);
+			} else {
+				isSaved = true;
+				shoppingListName = result.data.listName;
+			}
+			await update();
+		};
+	}}>
+		<!-- create a new shopping list Form -->
+		<label>
+			{isSaving? 'Saving list...' : 'Enter name of Shopping List'}
+			<input 
+				name="shoppingListName" 
+				value={form?.shoppingListName ?? ''}
+				disabled={isSaving}
+				required
+			/>
+			<button class="add-shoppingList" type="submit">Create List</button>
+		</label>
 	</form>
-	<h1>My Shopping List</h1>
-	<div class="items">
-		{#each ItemList as item, index}
-			<input bind:checked={item.completed} type="checkbox" />
-			<span class:checked={item.completed}>{item.itemName}</span>
-			<button class="delete_item" on:click={() => deleteItem(index)}> <span> ❌ </span> </button>
-			<br />
-		{/each}
-		<p>Total number of remaining Items to buy: {remainingItems}</p>
-		<div>
-			<button on:click={clearCompleted}>Clear Completed Items</button>
-		</div>
-	</div>
+
 </main>
 
 <style>
@@ -71,12 +77,12 @@
 		align-items: center;
 		margin-bottom: 1rem;
 	}
-	.items {
-		max-width: 300px;
+
+	.error {
+		color:darkred;
 	}
-	.checked {
-		text-decoration: line-through;
-		color: slategray;
+	.success {
+		color:green;
 	}
 
 	button:hover {
