@@ -3,9 +3,9 @@
 // and what to do when importing types
 declare namespace App {
 	interface Error {
-		code: string;
-		id: string;
 		message: string;
+		code?: string;
+		statusCode?: number;
 	}
 	// interface Locals {}
 	// interface PageData {}

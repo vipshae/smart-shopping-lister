@@ -1,64 +1,93 @@
 <script lang="ts">
 	import { applyAction, enhance } from '$app/forms';
+    import { goto } from '$app/navigation';
 	import type { ActionData } from './$types';
-	import { page } from '$app/stores';
-	
+	import { Button, Label, Input, Spinner, Alert, GradientButton } from 'flowbite-svelte';
+	import type { FormSizeType } from 'flowbite-svelte';
 	let isSaving = false;
 	let isSaved = false;
-	let shoppingListName: string;
+	let shoppingListName: string| unknown;
 	export let form: ActionData;
-	$: console.log($page.form, $page.status)
 
+	const gotoHome = async () => {
+		isSaved = false;
+		await goto("/", {
+			invalidateAll: true
+		})
+	}
 </script>
 
-<svelte:head>
-  <title>Shopping Lister App 📝</title>
-</svelte:head>
-
 {#if form?.error}
-	<p class="error">{form?.error}</p>
+	<Alert color="red" dismissable>
+		Error: {form?.error}
+	</Alert>
 {/if}
 
 {#if isSaved && shoppingListName}
-	<p class="success">Shopping List {shoppingListName} saved successfully!</p>
-	<form method="POST" action="?/addItems&shoppingListId={shoppingListName}">
-		<button class="add-items" type="submit">Add Items</button>
-	</form>
-{/if}
-
+	<Alert color="green">
+		<div class="flex items-center gap-3">
+			<span class="text-lg font-medium">Shopping List {shoppingListName} created successfully!</span>
+		</div>
+		<div class="flex gap-2">
+			<form method="POST" action="?/addItems&shoppingListId={shoppingListName}">
+				<Button size="xs" color="green" type="submit">Add Items</Button>
+			</form>
+			<Button on:click={gotoHome} size="xs" outline color="green" class="dark:text-green-800">Go to Home</Button>
+		</div>
+	</Alert>
+{:else}
 <main>
 	<!-- Form -->
-	<form method="POST" action="?/createList" use:enhance={({ form, data }) => {
+	<form method="POST" action="?/createList" use:enhance={({ formElement }) => {
 		// Before form submission to server, optimistic UI
 		isSaving = true;
 		isSaved = false;
-		form.reset();
+		formElement.reset();
 		return async ({ result, update }) => {
 			// After list creation
 			isSaving = false;
 			if (result.type === 'failure') {
 				await applyAction(result);
-			} else {
+			} else if (result.type === 'success'){
 				isSaved = true;
-				shoppingListName = result.data.listName;
+				shoppingListName = result.data?.listName;
 			}
 			await update();
 		};
 	}}>
 		<!-- create a new shopping list Form -->
-		<label>
-			{isSaving? 'Saving list...' : 'Enter name of Shopping List'}
-			<input 
-				name="shoppingListName" 
-				value={form?.shoppingListName ?? ''}
-				disabled={isSaving}
-				required
-			/>
-			<button class="add-shoppingList" type="submit">Create List</button>
-		</label>
-	</form>
+		<div class="flex flex-col space-y-2">
+			<div>
+				<Label class="leading-relaxed dark:text-gray-400">
+					{isSaving? 'Saving list...' : 'Enter name of Shopping List'}
+				</Label>
+			</div>
+			<div>
+				<Input 
+					name="shoppingListName" 
+					value={form?.shoppingListName ?? ''}
+					disabled={isSaving}
+					required
+					size: FormSizeType="sm:text-xs"
+				/>
+			</div>
+			<div>
+				<GradientButton size="sm" shadow color="blue" type="submit"> 
+					{#if isSaving}
+						<Spinner class="mr-3" size="4" color="white" />
+						Creating...
+					{:else}
+						Create List
+					{/if}
+				</GradientButton>
+			</div>
+		</div>
 
+	</form>
 </main>
+{/if}
+
+
 
 <style>
 	main {

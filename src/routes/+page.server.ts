@@ -3,13 +3,12 @@ import type { PageServerLoad } from './$types';
 import type { CreateShoppingListCommand } from '$lib/server/commands/create-list.command';
 import { createShoppingList } from '$db/utils/shoppingList.repository';
 
-
 export const load: PageServerLoad = async () => {
 
 };
 
 export const actions: Actions = {
-    createList: async ({request}): Promise<any> => {
+    createList: async ({ request }): Promise<any> => {
         try {
             await new Promise((fulfil) => setTimeout(fulfil, 1000));
             
@@ -32,7 +31,7 @@ export const actions: Actions = {
 
     },
 
-    addItems: async ({url}) => {
+    addItems: async ({ url }) => {
         const shoppingListId = url.searchParams.get('shoppingListId');
         throw redirect(303, `/lists/${shoppingListId}`);
     }

@@ -18,4 +18,4 @@ const ItemsSchema: Schema = new mongoose.Schema (
     }
 );
 
-export const ItemModel = mongoose.model<ItemInterface>("Items", ItemsSchema);
+export const ItemModel = mongoose.models.Items || mongoose.model<ItemInterface>("Items", ItemsSchema);

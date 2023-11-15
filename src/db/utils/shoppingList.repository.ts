@@ -1,12 +1,16 @@
 import type { CreateShoppingListCommand } from '$lib/server/commands/create-list.command';
 import type { AddItemToListCommand } from '$lib/server/commands/add-item.command';
 import type { Document } from 'mongoose';
+import mongoose from 'mongoose';
 import { ShoppingListModel } from '$db/models/ShoppingList';
 import { ItemModel } from '$db/models/Items';
+import { ResourceAlreadyExistError, ResourceDoesNotExistError } from '$db/utils/errors';
 import type { ShoppingListInterface, ItemInterface } from '../interfaces/db.interfaces';
 import type { Id as IdType } from '$lib/server/domain/id.domain';
 import type { ShoppingList as ShoppingListType } from '$lib/server/domain/shopping-list.domain';
 import type { Item as ItemType } from '$lib/server/domain/item.domain';
+import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list';
+import type { DeleteItemFromList } from '$lib/server/commands/delete-item.command';
 
 const toDomainId = (dbEntity: Document): IdType => {
     return {
@@ -35,19 +39,16 @@ const toItemDomainFull = (itemEntity : ItemInterface): ItemType => {
 };
 
 // ShoppingLists
-export const createShoppingList = async (newShoppingList: CreateShoppingListCommand) => {
-    if(newShoppingList.name === '') {
-        throw new Error('Shopping list name cannot be empty');
-    }
-    
+export const createShoppingList = async (newShoppingList: CreateShoppingListCommand) => {    
     // check if the list of that name already exist, if yes show list already exist
-    console.log(`Checking if list with name: ${newShoppingList.name} already exists`);
     let existingLists = await ShoppingListModel.find().lean();
     if (existingLists && existingLists.length !== 0) {
         existingLists = JSON.parse(JSON.stringify(existingLists));
         // console.log(existingLists);
         if(existingLists.filter((list) => list.name === newShoppingList.name).length !== 0) {
-            throw new Error('List of that name already exist in saved shopping lists, Please provide a different name!');
+            throw new ResourceAlreadyExistError({
+                message: 'List of that name already exist in saved shopping lists, Please provide a different name!'
+            });
         }
     }
 
@@ -103,15 +104,90 @@ export const getShoppingListByName = async(listName: string): Promise<ShoppingLi
     return shoppingListMapped[0];
 };
 
+export const deleteListByName = async(listToDelete: DeleteShoppingListCommand): Promise<number> => {
+    const shoppingListTobeDeleted = await getShoppingListByName(listToDelete.name);
+    shoppingListTobeDeleted.items.forEach(async (itemDoc) => {
+        await ItemModel.findByIdAndDelete(new mongoose.Types.ObjectId(itemDoc.id))
+    });
+    const { deletedCount } = await ShoppingListModel.deleteOne({ name: listToDelete.name });
+    return deletedCount;
+}
+
+export const updateList = async(filter = {}, updates = {}): Promise<String> => {
+    await ShoppingListModel.updateOne(filter, updates);
+    const updatedDoc = await ShoppingListModel.findOne(filter);
+    if(!updatedDoc) {
+        throw new ResourceDoesNotExistError({
+            message: 'List not found and could not be updated'
+        });
+    }
+    if('isFinished' in updates && updatedDoc.items) {
+        await ItemModel.updateMany({}, {completed: updates.isFinished});
+    }
+    return updatedDoc.name;
+}
+
 // Items
 export const addItemToList = async (newItemToAdd: AddItemToListCommand): Promise<IdType>  => {
-    const { list, name } = newItemToAdd
-    const foundList = await getShoppingListByName(list);
-    if(!foundList) throw new Error(`List of name ${list} does not exist`);
+    const { list, name } = newItemToAdd;
+    const foundList = await ShoppingListModel.findOne({ name: list }).populate('items').exec();
+    if (!foundList) {
+        throw new ResourceDoesNotExistError({
+            message: `List of name ${list} does not exist`
+        });
+    }
+    // Check if existing item with same name already present
     if(foundList.items.filter((item) => item.name == name ).length != 0) {
-        throw new Error(`Item of name ${name} already exist`);
+        throw new ResourceAlreadyExistError({
+            message: `Item of name ${name} already exist`
+        });
     }
     const newItemDoc = new ItemModel(newItemToAdd);
-    const savedList = await newItemDoc.save();
-    return toDomainId(savedList);
+    await newItemDoc.save();
+    foundList.items.push(newItemDoc);
+    await foundList.save();
+    return toDomainId(newItemDoc);
+}
+
+export const deleteItemFromList = async (itemToDelete: DeleteItemFromList): Promise<IdType> => {
+    const { name, list } = itemToDelete;
+    const itemDocDeleted = await ItemModel.findOneAndDelete({ name, list });
+    if(!itemDocDeleted) {
+        throw new ResourceDoesNotExistError({
+            message: `Item ${name} cannot be deleted as it doesn not exist`
+        });
+    }
+    const foundList = await ShoppingListModel.findOne({ name: list }).populate('items').exec();
+    if (!foundList) {
+        throw new ResourceDoesNotExistError({
+            message: `List of name ${list} does not exist`
+        });
+    }
+    foundList.items.pull(itemDocDeleted._id);
+    foundList.save();
+    return toDomainId(itemDocDeleted);
+}
+
+export const updateItem = async(filter = {}, updates = {}): Promise<String> => {
+    await ItemModel.updateOne(filter, updates);
+    const updatedDoc = await ItemModel.findOne(filter);
+    if(updatedDoc) {
+        return updatedDoc.name;
+    }
+    throw new ResourceDoesNotExistError({
+        message: 'Item not found and could not be updated'
+    });
+}
+
+export const toggleItem = async (filter: any = {}) => {
+    const { name } = filter;
+    const currentItem = await ItemModel.findOne(filter);
+    if(!currentItem) {
+        throw new ResourceDoesNotExistError({
+            message: `Item of name ${name} does not exist`
+        });
+    }
+    currentItem.completed = !currentItem.completed
+    await currentItem.save();
+    return toDomainId(currentItem);
 }

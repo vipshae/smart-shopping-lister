@@ -25,4 +25,4 @@ const ShoppingListSchema: Schema = new Schema(
     }
 );
 
-export const ShoppingListModel = mongoose.model<ShoppingListInterface>("ShoppingList", ShoppingListSchema)
+export const ShoppingListModel = mongoose.models.ShoppingList || mongoose.model<ShoppingListInterface>("ShoppingList", ShoppingListSchema)
