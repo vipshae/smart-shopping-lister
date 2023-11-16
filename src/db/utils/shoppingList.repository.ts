@@ -72,7 +72,7 @@ export const getSavedShoppingLists = async (): Promise<Array<ShoppingListType>> 
             id: doc._id.toString(),
             name: doc.name,
             isFinished: doc.isFinished,
-            items: doc.items.map((itemDoc) => {
+            items: doc.items.map((itemDoc:any) => {
                 return {
                     id: itemDoc._id.toString(),
                     name: itemDoc.name,
@@ -98,7 +98,7 @@ export const getShoppingListByName = async(listName: string): Promise<ShoppingLi
     const findList = await ShoppingListModel
         .find({name: listName})
         .populate('items');
-    const shoppingListMapped = findList.map((listDoc) => {
+    const shoppingListMapped = findList.map((listDoc:any) => {
         return toShoppingListDomainFull(listDoc)
     });
     return shoppingListMapped[0];
@@ -137,7 +137,7 @@ export const addItemToList = async (newItemToAdd: AddItemToListCommand): Promise
         });
     }
     // Check if existing item with same name already present
-    if(foundList.items.filter((item) => item.name == name ).length != 0) {
+    if(foundList.items.filter((item: any) => item.name == name ).length != 0) {
         throw new ResourceAlreadyExistError({
             message: `Item of name ${name} already exist`
         });
@@ -151,6 +151,7 @@ export const addItemToList = async (newItemToAdd: AddItemToListCommand): Promise
 
 export const deleteItemFromList = async (itemToDelete: DeleteItemFromList): Promise<IdType> => {
     const { name, list } = itemToDelete;
+    console.log('item to delete::', name, list);
     const itemDocDeleted = await ItemModel.findOneAndDelete({ name, list });
     if(!itemDocDeleted) {
         throw new ResourceDoesNotExistError({
@@ -183,6 +184,7 @@ export const toggleItem = async (filter: any = {}) => {
     const { name } = filter;
     const currentItem = await ItemModel.findOne(filter);
     if(!currentItem) {
+        console.log('does not exist');
         throw new ResourceDoesNotExistError({
             message: `Item of name ${name} does not exist`
         });

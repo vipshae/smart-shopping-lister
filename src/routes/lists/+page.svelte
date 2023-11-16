@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { enhance, applyAction } from '$app/forms';
 	import type { ActionData, PageData } from './$types';
-	import { AccordionItem, Accordion, Heading, Button, ButtonGroup } from 'flowbite-svelte';
+	import { AccordionItem, Accordion, Heading, Button, ButtonGroup, Alert } from 'flowbite-svelte';
   	import { ShoppingCartSolid, UserEditSolid, CheckOutline } from 'flowbite-svelte-icons';
 	export let data: PageData;
 	export let form: ActionData;
 </script>
 
 {#if form?.error}
-	<p class="error">{form?.error}</p>
+	<Alert color="red" dismissable>
+		Error: {form?.error}
+	</Alert>
 {/if}
 
 <Heading tag="h6" class="ml-3 mt-3">My Saved Shopping Lists</Heading>
@@ -42,37 +44,9 @@
 				</Button>
 			</ButtonGroup>
 		</form>
-
-
-
 	</AccordionItem>
 </Accordion>
-
-<!-- <div>
-	<form method="POST">
-		{#if list.isFinished}
-			<span style:text-decoration="line-through">
-				<a href="/lists/{list.name}">{list.name}</a>
-			</span>
-		{:else}
-			<span>
-				<a href="/lists/{list.name}">{list.name}</a>
-			</span>
-		{/if}
-		<button class="delete_list" formaction="?/deleteList&shoppingListId={list.name}">
-			<span> ❌ </span> 
-		</button>
-	</form>
-</div> -->
 {/each}
 
 <style>
-	.error {
-		color:darkred;
-	}
-	ol {
-		padding: 10px;
-		margin-left: 35px;
-
-	}
 </style>

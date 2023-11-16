@@ -3,7 +3,6 @@
     import { goto } from '$app/navigation';
 	import type { ActionData } from './$types';
 	import { Button, Label, Input, Spinner, Alert, GradientButton } from 'flowbite-svelte';
-	import type { FormSizeType } from 'flowbite-svelte';
 	let isSaving = false;
 	let isSaved = false;
 	let shoppingListName: string| unknown;
@@ -105,19 +104,5 @@
 		display: flex;
 		align-items: center;
 		margin-bottom: 1rem;
-	}
-
-	.error {
-		color:darkred;
-	}
-	.success {
-		color:green;
-	}
-
-	button:hover {
-		background: lightseagreen;
-	}
-	button:focus {
-		outline: none;
 	}
 </style>

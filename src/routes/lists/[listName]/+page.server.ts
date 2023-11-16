@@ -27,6 +27,7 @@ export const actions: Actions = {
 			const updatedItemResp = await toggleItem({name, list});
 			return updatedItemResp;
 		} catch(err: any) {
+			console.error(err);
 			return fail(err?.statusCode || 422, {
                 error: err.message,
             });
