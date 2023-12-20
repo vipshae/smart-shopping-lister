@@ -40,20 +40,17 @@ const toItemDomainFull = (itemEntity : ItemInterface): ItemType => {
 
 // ShoppingLists
 export const createShoppingList = async (newShoppingList: CreateShoppingListCommand) => {    
-    // check if the list of that name already exist, if yes show list already exist
-    let existingLists = await ShoppingListModel.find().lean();
+    const { name, isDone, user } = newShoppingList;
+    // check if the list of that name for the user already exist, if yes show list already exist
+    let existingLists = await ShoppingListModel.find({ name, user }).lean();
     if (existingLists && existingLists.length !== 0) {
-        existingLists = JSON.parse(JSON.stringify(existingLists));
-        // console.log(existingLists);
-        if(existingLists.filter((list) => list.name === newShoppingList.name).length !== 0) {
-            throw new ResourceAlreadyExistError({
-                message: 'List of that name already exist in saved shopping lists, Please provide a different name!'
-            });
-        }
+        throw new ResourceAlreadyExistError({
+            message: 'List of that name already exist in saved shopping lists, Please provide a different name!'
+        });
     }
 
     // save the list as new document in shoppingList collection
-    const newListDoc = new ShoppingListModel(newShoppingList);
+    const newListDoc = new ShoppingListModel({name, isDone, user});
     const savedList = await newListDoc.save();
     return {
         id : { ...toDomainId(savedList) },

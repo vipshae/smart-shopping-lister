@@ -12,6 +12,10 @@ const ShoppingListSchema: Schema = new Schema(
             type: Boolean,
             default: false,
         },
+        user: {
+            type: String,
+            required: true
+        },
         items: [
             {
                 type: Types.ObjectId,

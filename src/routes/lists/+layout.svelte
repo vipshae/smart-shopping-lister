@@ -6,7 +6,7 @@
 </script>
 
 <Breadcrumb aria-label="Solid background breadcrumb example" solid>
-    <BreadcrumbItem href="/" home>
+    <BreadcrumbItem href="/home" home>
         <svelte:fragment slot="icon">
           <HomeOutline class="w-4 h-4 mr-2" />
         </svelte:fragment>

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { applyAction, enhance } from '$app/forms';
-    import { Heading, P, Card, Label, Input, List, Li, Alert, Button, Spinner } from 'flowbite-svelte';
+    import { Heading, P, Hr, Card, Label, Input, List, Li, Alert, Button, Spinner } from 'flowbite-svelte';
 	import { PlusSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	export let data: PageData;
@@ -76,6 +76,7 @@
 			</Li>
 		{/each}
 	</List>
+	<Hr classHr="my-2" />
 	<form method="POST" action="?/addItem" use:enhance={({ formData, formElement }) => {
 		formData.append("listName", currentList.name);
 		isSaving = true;
@@ -117,43 +118,6 @@
 		</Label>
 	</form>
 </Card>
-
-
-<!-- {#each currentList.items as item}
-	<ol class="list-items">
-		<form bind:this={form[item.name]} method="POST" action="?/toggleItemCompleted&itemId={item.name}" use:enhance={({ formData, formElement }) => {
-			formData.append("listName", currentList.name);
-			return async ({ result, update }) => {
-				if (result.type === 'failure') {
-					await applyAction(result);
-				} else if (result.type === 'success') {
-					console.log('Item id toggled: ', result.data?.id)
-				}
-				await update();
-			}
-		}}>
-			<input type="checkbox" bind:checked={item.completed} name="markItemComplete" on:click|preventDefault={() => form[item.name].requestSubmit()}/>
-			<span class:checked={item.completed}>{item.name}</span>
-		</form>
-		<form method="POST" action="?/deleteItem&itemId={item.name}" use:enhance={({ formData }) => {
-			formData.append("listName", currentList.name);
-			return async ({ result, update }) => {
-				if (result.type === 'failure') {
-					await applyAction(result);
-				} else if (result.type === 'success') {
-					console.log('Item id deleted', result.data?.id)
-				}
-				await update();
-			};
-		}
-		}>
-			<button>
-				<span> ❌ </span> 
-			</button>
-		</form>
-	</ol>
-{/each} -->
-
 
 <style>
 </style>

@@ -1,108 +1,28 @@
 <script lang="ts">
-	import { applyAction, enhance } from '$app/forms';
-    import { goto } from '$app/navigation';
-	import type { ActionData } from './$types';
-	import { Button, Label, Input, Spinner, Alert, GradientButton } from 'flowbite-svelte';
-	let isSaving = false;
-	let isSaved = false;
-	let shoppingListName: string| unknown;
-	export let form: ActionData;
+    import hero from '$lib/images/smart-shopper-hero.png';
+    import { Button } from 'flowbite-svelte';
+    import { ArrowRightOutline } from 'flowbite-svelte-icons';
+    import type { PageData } from './$types';
+    export let data: PageData;
+    $: userLogged = data?.session?.user || false;
+    const getStartedRoute = userLogged ? '/home' : '/auth/login'
 
-	const gotoHome = async () => {
-		isSaved = false;
-		await goto("/", {
-			invalidateAll: true
-		})
-	}
 </script>
 
-{#if form?.error}
-	<Alert color="red" dismissable>
-		Error: {form?.error}
-	</Alert>
-{/if}
-
-{#if isSaved && shoppingListName}
-	<Alert color="green">
-		<div class="flex items-center gap-3">
-			<span class="text-lg font-medium">Shopping List {shoppingListName} created successfully!</span>
-		</div>
-		<div class="flex gap-2">
-			<form method="POST" action="?/addItems&shoppingListId={shoppingListName}">
-				<Button size="xs" color="green" type="submit">Add Items</Button>
-			</form>
-			<Button on:click={gotoHome} size="xs" outline color="green" class="dark:text-green-800">Go to Home</Button>
-		</div>
-	</Alert>
-{:else}
-<main>
-	<!-- Form -->
-	<form method="POST" action="?/createList" use:enhance={({ formElement }) => {
-		// Before form submission to server, optimistic UI
-		isSaving = true;
-		isSaved = false;
-		formElement.reset();
-		return async ({ result, update }) => {
-			// After list creation
-			isSaving = false;
-			if (result.type === 'failure') {
-				await applyAction(result);
-			} else if (result.type === 'success'){
-				isSaved = true;
-				shoppingListName = result.data?.listName;
-			}
-			await update();
-		};
-	}}>
-		<!-- create a new shopping list Form -->
-		<div class="flex flex-col space-y-2">
-			<div>
-				<Label class="leading-relaxed dark:text-gray-400">
-					{isSaving? 'Saving list...' : 'Enter name of Shopping List'}
-				</Label>
-			</div>
-			<div>
-				<Input 
-					name="shoppingListName" 
-					value={form?.shoppingListName ?? ''}
-					disabled={isSaving}
-					required
-					size: FormSizeType="sm:text-xs"
-				/>
-			</div>
-			<div>
-				<GradientButton size="sm" shadow color="blue" type="submit"> 
-					{#if isSaving}
-						<Spinner class="mr-3" size="4" color="white" />
-						Creating...
-					{:else}
-						Create List
-					{/if}
-				</GradientButton>
-			</div>
-		</div>
-
-	</form>
-</main>
-{/if}
-
-
-
-<style>
-	main {
-		display: flex;
-		flex-direction: column;
-		align-items: left;
-		min-height: 100%;
-		padding: 5vmin;
-		box-sizing: border-box;
-		background: antiquewhite;
-	}
-	form {
-		width: 100%;
-		max-width: 200px;
-		display: flex;
-		align-items: center;
-		margin-bottom: 1rem;
-	}
-</style>
+<section class="bg-white dark:bg-gray-900">
+    <div class="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
+        <div class="mr-auto place-self-center lg:col-span-7">
+            <h1 class="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:text-white">Smart Shopping Lister</h1>
+            <p class="max-w-2xl mb-6 font-light text-gray-500 lg:mb-8 md:text-lg lg:text-xl dark:text-gray-400">Make most of your shopping needs with smart shopping list maker.</p>
+            <Button size="lg" href={getStartedRoute}>
+                Get Started <ArrowRightOutline class="w-3.5 h-3.5 ms-2" />
+            </Button>
+            <a href="/smart-assistance" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800">
+                Try Smart shopping Assistant
+            </a> 
+        </div>
+        <div class="hidden lg:mt-0 lg:col-span-5 lg:flex">
+            <img src={hero} alt="mockup">
+        </div>                
+    </div>
+</section>
