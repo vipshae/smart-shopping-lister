@@ -5,7 +5,7 @@
     import type { PageData } from './$types';
     export let data: PageData;
     $: userLogged = data?.session?.user || false;
-    const getStartedRoute = userLogged ? '/home' : '/auth/login'
+    const getStartedRoute = userLogged ? '/home' : '/login'
 
 </script>
 

@@ -15,7 +15,7 @@
 	const logOut = () => {
         return signOut({
             redirect: true,
-            callbackUrl: 'http://localhost:5173/'
+            callbackUrl: data.SIGNOUT_CALLBACKURL
         })
     }
 
@@ -54,7 +54,7 @@
 				</Dropdown>
 			</NavLi>
 		{:else}
-			<NavLi href="/auth/login">Login</NavLi>
+			<NavLi href="/login">Login</NavLi>
 		{/if}
 		<NavLi href="/about">About</NavLi>
 

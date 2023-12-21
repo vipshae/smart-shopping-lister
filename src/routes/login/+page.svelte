@@ -2,12 +2,14 @@
     import { signIn, signOut } from '@auth/sveltekit/client';
     import { page } from "$app/stores";
     import { Heading, Button } from "flowbite-svelte";
+    import type { PageData } from './$types';
+    export let data: PageData;
     const logIn = () => {
         return signIn (
             'auth0', 
             {
                 redirect: false,
-                callbackUrl: 'http://localhost:5173/home'
+                callbackUrl: data.SIGNIN_CALLBACKURL
             },
             {
                 scope: 'api openid profile email'
@@ -17,7 +19,7 @@
     const logOut = () => {
         return signOut({
             redirect: true,
-            callbackUrl: 'http://localhost:5173/'
+            callbackUrl: data.SIGNOUT_CALLBACKURL
         })
     }
 </script>
@@ -34,7 +36,7 @@
             <Heading tag="h6" class="ml-1 mb-3 mt-3">Logged in as {$page.data.session.user?.name ?? "User"}</Heading>
             <Button size="sm" href="/home" class="button">Create New List</Button>
             <Button size="sm" href="/lists" class="button">View Saved lists</Button>
-            <Button size="sm" on:click={() => logOut()} class="button">Sign out</Button>
+            <Button size="sm" on:click={logOut} class="button">Sign out</Button>
         </span>
     {:else}
         <span class="notSignedInText">
