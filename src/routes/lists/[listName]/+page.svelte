@@ -1,7 +1,7 @@
 <script lang="ts">
     import { applyAction, enhance } from '$app/forms';
     import { Heading, P, Hr, Card, Label, Input, List, Li, Alert, Button, Spinner } from 'flowbite-svelte';
-	import { PlusSolid } from 'flowbite-svelte-icons';
+	import { PlusSolid, ThumbsUpSolid } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	export let data: PageData;
 	let isSaving: boolean = false;
@@ -21,13 +21,13 @@
 {/if}
 
 {#if listFinished}
-	<Heading tag="h6" class="ml-3 mt-3 line-through dark:text-gray-400">Shopping List: {currentList.name} completed</Heading>
+	<Alert color="none" class="ml-3 mt-3 bg-green-500 text-white"><strong>Shopping List: {currentList.name} completed</strong> <ThumbsUpSolid slot="icon" class="w-4 h-4" /></Alert>
 {/if}
 
 
 <!-- Display items, Put on right hand side  -->
 
-<Card class="w-full max-w-md">
+<Card class="ml-3 mt-3 w-full max-w-md">
 	<h7 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">List Items for {currentList.name}:</h7>
 	<List tag="ul" list="none" class="mt-2 text-gray-500 dark:text-gray-400">
 		{#each currentList.items as item}

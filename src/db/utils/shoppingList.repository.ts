@@ -9,8 +9,9 @@ import type { ShoppingListInterface, ItemInterface } from '../interfaces/db.inte
 import type { Id as IdType } from '$lib/server/domain/id.domain';
 import type { ShoppingList as ShoppingListType } from '$lib/server/domain/shopping-list.domain';
 import type { Item as ItemType } from '$lib/server/domain/item.domain';
-import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list';
+import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list.command';
 import type { DeleteItemFromList } from '$lib/server/commands/delete-item.command';
+import type { GetShoppingListQuery } from '$lib/server/queries/get-list.query';
 
 const toDomainId = (dbEntity: Document): IdType => {
     return {
@@ -90,9 +91,9 @@ export const getSavedShoppingListNames = async() : Promise<Array<string>> => {
     return savedListNameArr;
 };
 
-export const getShoppingListByName = async(listName: string): Promise<ShoppingListType> => {
+export const getShoppingListByNameForUser = async(getListQuery: GetShoppingListQuery): Promise<ShoppingListType> => {
     const findList = await ShoppingListModel
-        .find({name: listName})
+        .find(getListQuery)
         .populate('items');
     const shoppingListMapped = findList.map((listDoc:any) => {
         return toShoppingListDomainFull(listDoc)

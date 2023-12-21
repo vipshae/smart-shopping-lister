@@ -1,12 +1,17 @@
-import { addItemToList, deleteItemFromList, getShoppingListByName, toggleItem } from '$db/utils/shoppingList.repository';
-import { error, type Actions, fail } from '@sveltejs/kit';
+import { addItemToList, deleteItemFromList, getShoppingListByNameForUser, toggleItem } from '$db/utils/shoppingList.repository';
+import { error, type Actions, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { AddItemToListCommand } from '$lib/server/commands/add-item.command';
 import type { DeleteItemFromList } from '$lib/server/commands/delete-item.command';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, parent }) => {
+	const { session } = await parent();
+	if (!session?.user) throw redirect(303, '/login');
 	const listNameToGet = params.listName;
-	const listObj = await getShoppingListByName(listNameToGet);
+	const listObj = await getShoppingListByNameForUser({
+		name: listNameToGet,
+		user: String(session.user.name)
+	});
 	if(!listObj) throw error(404, {
 		message: `Shopping List ${listNameToGet} not found`,
 		statusCode: 404,
@@ -43,7 +48,7 @@ export const actions: Actions = {
 			list
 		};
 		try {
-			await new Promise((fulfil) => setTimeout(fulfil, 1000));
+			await new Promise((fulfil) => setTimeout(fulfil, 500));
 			const addedItemResp = await addItemToList(newItemToList);
 			return addedItemResp;
 		} catch(err: any) {

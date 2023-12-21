@@ -6,7 +6,7 @@ const mongoConnection = {
 } 
 
 export const dbConnect = async () => {
-    console.log('MONGO URI', MONGODB_URI);
+    // console.log('MONGO URI', MONGODB_URI);
     if(mongoConnection.isConnected) {
         console.log('Already connected to db');
     }

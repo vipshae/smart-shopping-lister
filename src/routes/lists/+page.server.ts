@@ -1,7 +1,7 @@
 import type { PageServerLoad } from './$types';
 import { deleteListById, getSavedShoppingLists, updateList } from '$db/utils/shoppingList.repository';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
-import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list';
+import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list.command';
 
 export const load: PageServerLoad = async({ parent }) : Promise<any> => {
 	const { session } = await parent();

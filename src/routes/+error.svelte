@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+    import { Alert } from 'flowbite-svelte';
 </script>
 
 {#if $page.error}
-    <h2>{$page.error.message}</h2>
+    <Alert color="red" dismissable>
+        Error: {$page.error.message}
+    </Alert>
 {/if}
