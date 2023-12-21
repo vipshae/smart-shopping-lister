@@ -58,9 +58,9 @@ export const createShoppingList = async (newShoppingList: CreateShoppingListComm
     };
 };
 
-export const getSavedShoppingLists = async (): Promise<Array<ShoppingListType>> => {
+export const getSavedShoppingLists = async (user: String): Promise<Array<ShoppingListType>> => {
     const savedLists = await ShoppingListModel
-        .find()
+        .find({ user })
         .lean()
         .populate('items');
         
@@ -79,7 +79,6 @@ export const getSavedShoppingLists = async (): Promise<Array<ShoppingListType>> 
             })
         };
     });
-    
     return listArray;
 };
 
@@ -101,12 +100,22 @@ export const getShoppingListByName = async(listName: string): Promise<ShoppingLi
     return shoppingListMapped[0];
 };
 
-export const deleteListByName = async(listToDelete: DeleteShoppingListCommand): Promise<number> => {
-    const shoppingListTobeDeleted = await getShoppingListByName(listToDelete.name);
+export const getShoppingListById = async(listId: string): Promise<ShoppingListType> => {
+    const findList = await ShoppingListModel
+        .find({_id: listId})
+        .populate('items');
+    const shoppingListMapped = findList.map((listDoc:any) => {
+        return toShoppingListDomainFull(listDoc)
+    });
+    return shoppingListMapped[0];
+}
+
+export const deleteListById = async(listToDelete: DeleteShoppingListCommand): Promise<number> => {
+    const shoppingListTobeDeleted = await getShoppingListById(listToDelete.id);
     shoppingListTobeDeleted.items.forEach(async (itemDoc) => {
         await ItemModel.findByIdAndDelete(new mongoose.Types.ObjectId(itemDoc.id))
     });
-    const { deletedCount } = await ShoppingListModel.deleteOne({ name: listToDelete.name });
+    const { deletedCount } = await ShoppingListModel.findByIdAndDelete(new mongoose.Types.ObjectId(listToDelete.id));
     return deletedCount;
 }
 

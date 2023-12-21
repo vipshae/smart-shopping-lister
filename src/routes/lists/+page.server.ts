@@ -1,12 +1,14 @@
 import type { PageServerLoad } from './$types';
-import { deleteListByName, getSavedShoppingLists, updateList } from '$db/utils/shoppingList.repository';
+import { deleteListById, getSavedShoppingLists, updateList } from '$db/utils/shoppingList.repository';
 import { fail, type Actions, redirect } from '@sveltejs/kit';
 import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list';
 
-export const load: PageServerLoad = async() : Promise<any> => {
-	const savedLists = await getSavedShoppingLists();
+export const load: PageServerLoad = async({ parent }) : Promise<any> => {
+	const { session } = await parent();
+    if (!session?.user) throw redirect(303, '/login');
+	const userSavedLists = await getSavedShoppingLists(String(session.user.name));
 	const listsArray: any[] = [];
-	savedLists.forEach((listObj) => {
+	userSavedLists.forEach((listObj) => {
 		const neededProps = {
 			id: listObj.id,
 			name: listObj.name,
@@ -20,15 +22,15 @@ export const load: PageServerLoad = async() : Promise<any> => {
 
 export const actions: Actions = {
 	deleteList: async ({ url }): Promise<any> => {
-		const listName = String(url.searchParams.get('shoppingListId'));
-		console.log(`Deleting shopping list with name ${listName}`)
+		const listId = String(url.searchParams.get('shoppingListId'));
+		console.log(`Deleting shopping list with id ${listId}`)
 		const deleteList: DeleteShoppingListCommand = {
-			name: listName
+			id: listId
 		}
 		try {
-			const deletedCount = await deleteListByName(deleteList);
+			const deletedCount = await deleteListById(deleteList);
 			if (deletedCount == 0) return fail(404, {
-				error: `Shopping list id ${deleteList.id} not found`
+				error: `Error deleting List, Shopping list id ${deleteList.id} not found`
 			}) 
 		} catch(err: any) {
 			return fail(422, {

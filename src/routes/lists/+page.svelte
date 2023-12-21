@@ -39,7 +39,7 @@
 					<UserEditSolid class="w-3 h-3 mr-2" />
 					Edit List
 				</Button>
-				<Button type="submit" size="sm" outline color="red" formaction="?/deleteList&shoppingListId={list.name}">
+				<Button type="submit" size="sm" outline color="red" formaction="?/deleteList&shoppingListId={list.id}">
 					❌ Delete List
 				</Button>
 			</ButtonGroup>

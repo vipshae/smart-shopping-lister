@@ -43,7 +43,7 @@
 			<NavLi href="/home">Home</NavLi>
 			<NavLi href="/lists">My Shopping Lists</NavLi>
 			<NavLi>
-				<Avatar id="user-drop" class="cursor-pointer mb-2" dot={{ placement: 'bottom-right', color: 'green' }} size="sm" />
+				<Avatar src={data?.session?.user?.image} id="user-drop" class="cursor-pointer mb-2" dot={{ placement: 'bottom-right', color: 'green' }} size="sm" />
 				<Dropdown triggeredBy="#user-drop">
 					<DropdownHeader>
 						<span class="block truncate text-md font-medium">{data?.session?.user?.name}</span>
