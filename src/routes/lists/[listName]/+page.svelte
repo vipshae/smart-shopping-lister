@@ -33,8 +33,10 @@
 		{#each currentList.items as item}
 			<Li class="gap-3">
 				<div class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1">
-					<form bind:this={form[item.name]} method="POST" action="?/toggleItemCompleted&itemId={item.name}" use:enhance={({ formData, formElement }) => {
+					<form bind:this={form[item.name]} method="POST" action="?/toggleItemCompleted&itemId={item.id}" use:enhance={({ formData, formElement }) => {
 						formData.append("listName", currentList.name);
+						formData.append("listId", currentList.id);
+						formData.append("itemName", item.name);
 						return async ({ result, update }) => {
 							if (result.type === 'failure') {
 								await applyAction(result);
@@ -56,8 +58,9 @@
 						
 					</div>
 
-					<form method="POST" action="?/deleteItem&itemId={item.name}" use:enhance={({ formData }) => {
+					<form method="POST" action="?/deleteItem&itemId={item.id}" use:enhance={({ formData }) => {
 						formData.append("listName", currentList.name);
+						formData.append("itemName", item.name);
 						return async ({ result, update }) => {
 							if (result.type === 'failure') {
 								await applyAction(result);

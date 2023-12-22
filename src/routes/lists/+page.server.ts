@@ -6,7 +6,7 @@ import type { DeleteShoppingListCommand } from '$lib/server/commands/delete-list
 export const load: PageServerLoad = async({ parent }) : Promise<any> => {
 	const { session } = await parent();
     if (!session?.user) throw redirect(303, '/login');
-	const userSavedLists = await getSavedShoppingLists(String(session.user.name));
+	const userSavedLists = await getSavedShoppingLists(String(session.user.email));
 	const listsArray: any[] = [];
 	userSavedLists.forEach((listObj) => {
 		const neededProps = {

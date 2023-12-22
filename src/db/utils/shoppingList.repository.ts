@@ -128,10 +128,16 @@ export const updateList = async(filter = {}, updates = {}): Promise<String> => {
             message: 'List not found and could not be updated'
         });
     }
-    if('isFinished' in updates && updatedDoc.items) {
-        await ItemModel.updateMany({}, {completed: updates.isFinished});
+    if('isFinished' in updates && updatedDoc.items && !checkAllItemsCompletedInList(updatedDoc.id)) {
+        console.log('Updating all items in the list');
+        await ItemModel.updateMany({list: updatedDoc.name}, {completed: updates.isFinished});
     }
     return updatedDoc.name;
+}
+
+export const checkAllItemsCompletedInList = async (listId: string): Promise<boolean> => {
+    const foundList = await getShoppingListById(listId)
+    return foundList.items.length != 0 && foundList.items.every(item => item.completed === true)
 }
 
 // Items
@@ -157,9 +163,9 @@ export const addItemToList = async (newItemToAdd: AddItemToListCommand): Promise
 }
 
 export const deleteItemFromList = async (itemToDelete: DeleteItemFromList): Promise<IdType> => {
-    const { name, list } = itemToDelete;
-    console.log('item to delete::', name, list);
-    const itemDocDeleted = await ItemModel.findOneAndDelete({ name, list });
+    const { id, name, list } = itemToDelete;
+    console.log('item to delete::', id, name, list);
+    const itemDocDeleted = await ItemModel.findOneAndDelete({ _id: id, name, list });
     if(!itemDocDeleted) {
         throw new ResourceDoesNotExistError({
             message: `Item ${name} cannot be deleted as it doesn not exist`
@@ -188,8 +194,8 @@ export const updateItem = async(filter = {}, updates = {}): Promise<String> => {
 }
 
 export const toggleItem = async (filter: any = {}) => {
-    const { name } = filter;
-    const currentItem = await ItemModel.findOne(filter);
+    const { id, name, list } = filter;
+    const currentItem = await ItemModel.findOne({_id: id, name, list});
     if(!currentItem) {
         console.log('does not exist');
         throw new ResourceDoesNotExistError({

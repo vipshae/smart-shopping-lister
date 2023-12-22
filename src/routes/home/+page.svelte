@@ -48,7 +48,7 @@
 		isSaving = true;
 		isSaved = false;
 		formElement.reset();
-		formData.append("user", data?.session?.user?.name ?? "Admin");
+		formData.append("user", data?.session?.user?.email ?? "Admin");
 		return async ({ result, update }) => {
 			// After list creation
 			isSaving = false;

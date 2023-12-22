@@ -1,4 +1,4 @@
-import { addItemToList, deleteItemFromList, getShoppingListByNameForUser, toggleItem } from '$db/utils/shoppingList.repository';
+import { addItemToList, deleteItemFromList, getShoppingListByNameForUser, toggleItem, checkAllItemsCompletedInList, updateList } from '$db/utils/shoppingList.repository';
 import { error, type Actions, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import type { AddItemToListCommand } from '$lib/server/commands/add-item.command';
@@ -10,7 +10,7 @@ export const load: PageServerLoad = async ({ params, parent }) => {
 	const listNameToGet = params.listName;
 	const listObj = await getShoppingListByNameForUser({
 		name: listNameToGet,
-		user: String(session.user.name)
+		user: String(session.user.email)
 	});
 	if(!listObj) throw error(404, {
 		message: `Shopping List ${listNameToGet} not found`,
@@ -25,11 +25,20 @@ export const load: PageServerLoad = async ({ params, parent }) => {
 
 export const actions: Actions = {
 	toggleItemCompleted: async ({ request, url }) => {
-		const name = url.searchParams.get('itemId') || '';
+		const id = url.searchParams.get('itemId') || '';
 		const formData = await request.formData();
 		const list = String(formData.get('listName'));
+		const listId = String(formData.get('listId'));
+		const name = String(formData.get('itemName'));
 		try {
-			const updatedItemResp = await toggleItem({name, list});
+			const updatedItemResp = await toggleItem({id, name, list});
+			const allItemsCompleted = await checkAllItemsCompletedInList(listId);
+			if(allItemsCompleted === true) {
+				const updatedList = await updateList(
+					{ name: list, id: listId }, 
+					{ isFinished: true }
+				);
+			}
 			return updatedItemResp;
 		} catch(err: any) {
 			console.error(err);
@@ -58,10 +67,12 @@ export const actions: Actions = {
 		}
 	},
 	deleteItem: async ({ url, request }) => {
-		const itemName = url.searchParams.get('itemId') || '';
+		const itemId = url.searchParams.get('itemId') || '';
 		const formData = await request.formData();
 		const listName = String(formData.get('listName'));
+		const itemName = String(formData.get('itemName'));
 		const deleteCommand: DeleteItemFromList = {
+			id: itemId,
 			name: itemName,
 			list: listName
 		}
