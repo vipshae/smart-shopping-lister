@@ -49,5 +49,11 @@ export const actions: Actions = {
                 error: err.message,
             });
 		}
+	},
+	shareList: async ({ url, request }): Promise<any> => {
+		const listId = String(url.searchParams.get('shoppingListId'));
+		const formData = await request.formData();
+		const email = String(formData.get('email'));
+		console.log('sharing list with for email', email);
 	}
 }

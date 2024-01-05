@@ -10,7 +10,7 @@
 	$: currentList = data.savedList;
 	$: listFinished = data.savedList.items.length != 0
 		&& data.savedList.items.every(item => item.completed === true)
-		|| data.savedList.isFinished;
+		&& data.savedList.isFinished;
 
 </script>
 

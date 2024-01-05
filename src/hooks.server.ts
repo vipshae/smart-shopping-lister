@@ -1,10 +1,11 @@
 import { dbConnect, dbDisconnect } from "$lib/mongo";
-import type { HandleServerError } from '@sveltejs/kit';
+import { redirect, type HandleServerError } from '@sveltejs/kit';
 import { SvelteKitAuth, type SvelteKitAuthConfig } from '@auth/sveltekit';
 import Auth0Provider from '@auth/core/providers/auth0';
 import type { Provider } from '@auth/core/providers';
 import type { Handle } from '@sveltejs/kit';
 import { AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET, SVELTE_AUTH_CONFIG_SECRET } from '$env/static/private';
+import { sequence } from "@sveltejs/kit/hooks";
 
 dbConnect();
 
@@ -26,7 +27,20 @@ const config: SvelteKitAuthConfig = {
   }
 };
 
-export const handle = SvelteKitAuth(config) satisfies Handle;
+const authorizeUser = async ({ event, resolve }) => {
+  if(
+    event.url.pathname.startsWith('/home') || event.url.pathname.startsWith('/lists')
+  ) {
+    const session = await event.locals.getSession();
+    if (!session || !session?.user) throw redirect(303, '/login');
+  }
+  return resolve(event);
+}
+
+export const handle: Handle = sequence(
+  SvelteKitAuth(config),
+  authorizeUser
+);
 
 // export const handleError: HandleServerError = ({ error, event }) => {
 //     return {

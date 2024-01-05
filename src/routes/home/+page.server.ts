@@ -5,7 +5,6 @@ import { createShoppingList } from '$db/utils/shoppingList.repository';
 
 export const load: PageServerLoad = async ({ parent }) => {
     const { session } = await parent();
-    if (!session?.user) throw redirect(303, '/login');
     return session;
 };
 

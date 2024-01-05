@@ -38,6 +38,11 @@ export const actions: Actions = {
 					{ name: list, id: listId }, 
 					{ isFinished: true }
 				);
+			} else {
+				const updatedList = await updateList(
+					{ name: list, id: listId }, 
+					{ isFinished: false }
+				);
 			}
 			return updatedItemResp;
 		} catch(err: any) {

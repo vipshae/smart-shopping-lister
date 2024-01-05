@@ -21,8 +21,16 @@ const ShoppingListSchema: Schema = new Schema(
                 type: Types.ObjectId,
                 ref: 'Items'
             },
+        ],
+        isShared: {
+            type: Boolean,
+            default: false,
+        },
+        sharedWith: [
+            {
+                type: String,
+            }
         ]
-        
     },
     {
         timestamps: true,
