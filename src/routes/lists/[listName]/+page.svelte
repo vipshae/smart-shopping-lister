@@ -2,17 +2,22 @@
     import { applyAction, enhance, deserialize } from '$app/forms';
 	import { invalidateAll } from '$app/navigation';
 	import { useCompletion } from 'ai/svelte';
-    import { P, Hr, Card, Label, Input, List, Li, Alert, Button, Spinner } from 'flowbite-svelte';
-	import { PlusSolid, ThumbsUpSolid } from 'flowbite-svelte-icons';
+	import { Svroller } from 'svrollbar'
+    import { P, Hr, Card, Label, Input, List, Li, Alert, Button, Spinner, Heading } from 'flowbite-svelte';
+	import { PlusSolid, ThumbsUpSolid, BrainOutline } from 'flowbite-svelte-icons';
 	import type { PageData } from './$types';
 	import type { ActionResult } from '@sveltejs/kit';
 	export let data: PageData;
 	let isSaving: boolean = false;
 	let form: { [key: string]: HTMLFormElement; } = {};
+	let suggestionError = false;
 
-	const { completion, input, stop, error, handleSubmit } = useCompletion(
+	const { completion, input, error, handleSubmit } = useCompletion(
 		{
-			api: '../api/smart-shopper'
+			api: '../api/smart-shopper',
+			onError: () => {
+				suggestionError = true;
+			}
 		}
 	);
 
@@ -30,15 +35,15 @@
 
 		// call the AI submission for completion
 		handleSubmit(event);
-
+		
+		// reset input field
 		const inputEl = document.getElementById("itemInput") as HTMLInputElement | null;
 		if(inputEl != null) {
-			// reset input field
 			inputEl.value = '';
 		}
 
 		if (result.type === 'success') {
-			console.log('Item id added to list', result.data?.id)			
+			console.log('Item id added to list', result.data?.id);
 			await invalidateAll();
 		}
 
@@ -65,66 +70,15 @@
 
 <!-- Display items, Put on right hand side  -->
 <div class="container">
-	<Card class="ml-3 mt-3 w-full max-w-md">
-		<h7 class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">List Items for {currentList.name}:</h7>
-		<List tag="ul" list="none" class="mt-2 text-gray-500 dark:text-gray-400">
-			{#each currentList.items as item}
-				<Li class="gap-3">
-					<div class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1">
-						<form bind:this={form[item.name]} method="POST" action="?/toggleItemCompleted&itemId={item.id}" use:enhance={({ formData, formElement }) => {
-							formData.append("listName", currentList.name);
-							formData.append("listId", currentList.id);
-							formData.append("itemName", item.name);
-							return async ({ result, update }) => {
-								if (result.type === 'failure') {
-									await applyAction(result);
-								} else if (result.type === 'success') {
-									console.log('Item id toggled: ', result.data?.id)
-								}
-								await update();
-							}
-						}}>
-							<input type="checkbox" checked={item.completed}  name="markItemComplete" on:click={() => form[item.name].requestSubmit()}/>
-						</form>
-	
-						<div class="ml-6 mr-3">
-							{#if item.completed}
-								<p class="line-through text-md dark:text-gray-400">{item.name}</p>
-							{:else}
-								<p class="text-md dark:text-gray-400">{item.name}</p>
-							{/if}
-							
-						</div>
-	
-						<form method="POST" action="?/deleteItem&itemId={item.id}" use:enhance={({ formData }) => {
-							formData.append("listName", currentList.name);
-							formData.append("itemName", item.name);
-							return async ({ result, update }) => {
-								if (result.type === 'failure') {
-									await applyAction(result);
-								} else if (result.type === 'success') {
-									console.log('Item id deleted', result.data?.id)
-								}
-								await update();
-							};
-						}
-						}>
-							<Button type="submit" size="xs" outline color="light">
-								❌
-							</Button>
-						</form>
-					</div>
-				</Li>
-			{/each}
-		</List>
-		<Hr classHr="my-2" />
+	<Card class="ml-6 mt-3 w-full max-w-md">
+		<Heading tag="h6" class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Shopping List: {currentList.name}</Heading>		
 		<form method="POST" action="?/addItem" on:submit|preventDefault={handleItemAddSubmit}>
 			<Label for="itemName" class="block mb-1 mt-6">
 				<P italic>
 					{#if isSaving}
 						Adding item....
 					{:else}
-						Enter new Item
+						Add new Item
 					{/if}
 				</P>
 				<div class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1">
@@ -147,11 +101,69 @@
 				</div>
 			</Label>
 		</form>
+		<Hr classHr="my-2" />
+		<Svroller width="25rem" height="20rem" alwaysVisible={true}>
+			<List tag="ul" list="none" class="mt-2 text-gray-500 dark:text-gray-400">
+				{#each currentList.items as item}
+					<Li class="gap-3">
+						<div class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1">
+							<form bind:this={form[item.name]} method="POST" action="?/toggleItemCompleted&itemId={item.id}" use:enhance={({ formData, formElement }) => {
+								formData.append("listName", currentList.name);
+								formData.append("listId", currentList.id);
+								formData.append("itemName", item.name);
+								return async ({ result, update }) => {
+									if (result.type === 'failure') {
+										await applyAction(result);
+									} else if (result.type === 'success') {
+										console.log('Item id toggled: ', result.data?.id)
+									}
+									await update();
+								}
+							}}>
+								<input type="checkbox" checked={item.completed}  name="markItemComplete" on:click={() => form[item.name].requestSubmit()}/>
+							</form>
+		
+							<div class="ml-6 mr-3">
+								{#if item.completed}
+									<p class="line-through text-md dark:text-gray-400">{item.name}</p>
+								{:else}
+									<p class="text-md dark:text-gray-400">{item.name}</p>
+								{/if}
+								
+							</div>
+		
+							<form method="POST" action="?/deleteItem&itemId={item.id}" use:enhance={({ formData }) => {
+								formData.append("listName", currentList.name);
+								formData.append("itemName", item.name);
+								return async ({ result, update }) => {
+									if (result.type === 'failure') {
+										await applyAction(result);
+									} else if (result.type === 'success') {
+										console.log('Item id deleted', result.data?.id)
+									}
+									await update();
+								};
+							}
+							}>
+								<Button type="submit" size="xs" outline color="light">
+									❌
+								</Button>
+							</form>
+						</div>
+					</Li>
+				{/each}
+			</List>
+		</Svroller>
 	</Card>
 	
-	<Card class="ml-3 mt-3 mr-3 w-full max-w-md">
+	<Card class="ml-6 mt-3 mr-3 w-full max-w-md h-full">
+		{#if suggestionError}
+			<Alert color="red" dismissable>
+				Error getting Suggestions: {error}
+			</Alert>
+		{/if}
 		<section>
-			Smart ListerBot suggests purchasing:
+			<BrainOutline/> SmartShopper suggests:
 			<div class="flex flex-col w-full max-w-md py-24 mx-auto stretch">
 				<P italic weight="bold">
 					{$completion}
