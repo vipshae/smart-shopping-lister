@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance, applyAction } from '$app/forms';
-	import validator from 'validator';
 	import type { ActionData, PageData } from './$types';
 	import { AccordionItem, Accordion, Heading, Button, ButtonGroup, Alert, Modal, Label, Input } from 'flowbite-svelte';
   	import { ShoppingCartSolid, UserEditSolid, ShareNodesSolid } from 'flowbite-svelte-icons';
@@ -8,8 +7,6 @@
 	export let form: ActionData;
 	let formModal = false;
 	let inputEmail = '';
-	let invalidEmail = false;
-	const invalidEmailMessage = 'Please, enter a valid email!';
 </script>
 
 {#if form?.error}
@@ -49,13 +46,6 @@
 </Accordion>
 
 <form class="flex flex-col space-y-6" method="POST" action="?/shareList&shoppingListId={list.id}" use:enhance={({ formData, cancel }) => {
-	// Before form submission to server, validate Email
-	invalidEmail = false;
-	if (!validator.isEmail(inputEmail)) {
-		console.log('inputemail', inputEmail);
-		invalidEmail = true;
-		cancel();
-	}
 	formData.append("email", inputEmail);
 	return async ({ result, update }) => {
 		// After list creation
@@ -73,9 +63,6 @@
 			<span>Email</span>
 			<Input type="email" id="email" value={inputEmail} placeholder="name@company.com" required />
 		</Label>
-		{#if invalidEmail}
-			<span>{invalidEmailMessage}</span>
-		{/if}
 		<Button type="submit" class="w-full1" color="green">Share List</Button>
 	</Modal>
 </form>

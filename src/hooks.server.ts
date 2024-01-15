@@ -7,6 +7,7 @@ import type { Handle } from '@sveltejs/kit';
 import { AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET, SVELTE_AUTH_CONFIG_SECRET } from '$env/static/private';
 import { sequence } from "@sveltejs/kit/hooks";
 
+// Connect to db on app start
 dbConnect();
 
 const config: SvelteKitAuthConfig = {
@@ -27,6 +28,7 @@ const config: SvelteKitAuthConfig = {
   }
 };
 
+// Middleware for protecting certain paths from unauth. access
 const authorizeUser = async ({ event, resolve }) => {
   if(
     event.url.pathname.startsWith('/home') || event.url.pathname.startsWith('/lists')
@@ -37,6 +39,7 @@ const authorizeUser = async ({ event, resolve }) => {
   return resolve(event);
 }
 
+// chaining middlewares using sequence hook
 export const handle: Handle = sequence(
   SvelteKitAuth(config),
   authorizeUser
