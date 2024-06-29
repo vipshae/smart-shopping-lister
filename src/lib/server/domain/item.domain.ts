@@ -1,6 +1,6 @@
 export interface Item {
-    id: string;
-    name: string;
-    completed: boolean;
-    list: string;
+  id: string;
+  name: string;
+  completed: boolean;
+  list: string;
 }

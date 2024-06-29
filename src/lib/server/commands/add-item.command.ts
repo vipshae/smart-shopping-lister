@@ -1,5 +1,5 @@
 export interface AddItemToListCommand {
-    name: string;
-    completed: boolean;
-    list: string;
+  name: string;
+  completed: boolean;
+  list: string;
 }

@@ -1,0 +1,7 @@
+# Ignore artifacts:
+.vercel
+.svelte-kit
+
+# Ignore all HTML files:
+**/*.html
+static

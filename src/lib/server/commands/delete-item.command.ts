@@ -1,5 +1,5 @@
 export interface DeleteItemFromList {
-    id: string,
-    name: string,
-    list: string
+  id: string;
+  name: string;
+  list: string;
 }

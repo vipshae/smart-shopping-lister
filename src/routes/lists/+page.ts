@@ -1,9 +1,9 @@
-import type { PageLoad } from './$types';
+import type { PageLoad } from "./$types";
 
 export const load: PageLoad = ({ data }) => {
-    // console.log(data);
-    return {
-        lists: data.listsArray,
-        title: 'My Saved Lists'
-    }
-}
+  // console.log(data);
+  return {
+    lists: data.listsArray,
+    title: "My Saved Lists",
+  };
+};
