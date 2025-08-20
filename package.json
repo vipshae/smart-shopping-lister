@@ -18,10 +18,10 @@
     "@eslint/js": "^8.56.0",
     "@huggingface/inference": "^2.6.4",
     "@playwright/test": "^1.28.1",
-    "@sveltejs/adapter-auto": "^1.0.0",
-    "@sveltejs/adapter-node": "^1.1.0",
+    "@sveltejs/adapter-auto": "^6.1.0",
+    "@sveltejs/adapter-node": "^5.3.1",
     "@sveltejs/adapter-vercel": "next",
-    "@sveltejs/kit": "^1.0.0",
+    "@sveltejs/kit": "^2.36.0",
     "@types/eslint__js": "^8.42.3",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
@@ -52,7 +52,7 @@
   "type": "module",
   "dependencies": {
     "@auth/core": "^0.18.4",
-    "@auth/sveltekit": "^0.3.15",
+    "@auth/sveltekit": "^1.10.0",
     "@auth0/auth0-spa-js": "^2.0.1",
     "mongoose": "^6.8.3",
     "openai": "^4.20.1"
