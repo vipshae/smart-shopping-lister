@@ -1,6 +1,6 @@
-# to-buy-lister
+# smart-shopping-lister
 
-This app lets you create and save shopping lists for making it easier for you to remember what to buy the next time you go shopping.
+This app lets you create and save shopping lists for making it easier for you to remember what to buy the next time you go shopping. With the smart feature turned on, you can use AI generated shopping suggestions to help you pick your next item.
 
 ## Building
 
