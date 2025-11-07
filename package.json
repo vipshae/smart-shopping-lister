@@ -28,7 +28,7 @@
     "@types/eslint__js": "^8.42.3",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
-    "ai": "^2.2.31",
+    "ai": "^5.0.52",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^8.10.0",
