@@ -44,12 +44,12 @@ export const actions: Actions = {
       if (allItemsCompleted === true) {
         const updatedList = await updateList(
           { name: list, id: listId },
-          { isFinished: true }
+          { isFinished: true },
         );
       } else {
         const updatedList = await updateList(
           { name: list, id: listId },
-          { isFinished: false }
+          { isFinished: false },
         );
       }
       return updatedItemResp;

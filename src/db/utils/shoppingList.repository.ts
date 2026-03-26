@@ -26,7 +26,7 @@ const toDomainId = (dbEntity: Document): IdType => {
 };
 
 const toShoppingListDomainFull = (
-  shoppingListEntity: ShoppingListInterface
+  shoppingListEntity: ShoppingListInterface,
 ): ShoppingListType => {
   return {
     id: shoppingListEntity._id.toString(),
@@ -49,7 +49,7 @@ const toItemDomainFull = (itemEntity: ItemInterface): ItemType => {
 
 // ShoppingLists
 export const createShoppingList = async (
-  newShoppingList: CreateShoppingListCommand
+  newShoppingList: CreateShoppingListCommand,
 ) => {
   const { name, isDone, user } = newShoppingList;
   // check if the list of that name for the user already exist, if yes show list already exist
@@ -71,7 +71,7 @@ export const createShoppingList = async (
 };
 
 export const getSavedShoppingLists = async (
-  user: string
+  user: string,
 ): Promise<Array<ShoppingListType>> => {
   const savedLists = await ShoppingListModel.find({ user })
     .lean()
@@ -104,7 +104,7 @@ export const getSavedShoppingListNames = async (): Promise<Array<string>> => {
 };
 
 export const getShoppingListByNameForUser = async (
-  getListQuery: GetShoppingListQuery
+  getListQuery: GetShoppingListQuery,
 ): Promise<ShoppingListType> => {
   const findList = await ShoppingListModel.find(getListQuery).populate("items");
   const shoppingListMapped = findList.map((listDoc: any) => {
@@ -114,10 +114,10 @@ export const getShoppingListByNameForUser = async (
 };
 
 export const getShoppingListById = async (
-  listId: string
+  listId: string,
 ): Promise<ShoppingListType> => {
   const findList = await ShoppingListModel.find({ _id: listId }).populate(
-    "items"
+    "items",
   );
   const shoppingListMapped = findList.map((listDoc: any) => {
     return toShoppingListDomainFull(listDoc);
@@ -126,21 +126,21 @@ export const getShoppingListById = async (
 };
 
 export const deleteListById = async (
-  listToDelete: DeleteShoppingListCommand
+  listToDelete: DeleteShoppingListCommand,
 ): Promise<number> => {
   const shoppingListTobeDeleted = await getShoppingListById(listToDelete.id);
   shoppingListTobeDeleted.items.forEach(async (itemDoc) => {
     await ItemModel.findByIdAndDelete(new mongoose.Types.ObjectId(itemDoc.id));
   });
   const { deletedCount } = await ShoppingListModel.findByIdAndDelete(
-    new mongoose.Types.ObjectId(listToDelete.id)
+    new mongoose.Types.ObjectId(listToDelete.id),
   );
   return deletedCount;
 };
 
 export const updateList = async (
   filter = {},
-  updates = {}
+  updates = {},
 ): Promise<string> => {
   await ShoppingListModel.updateOne(filter, updates);
   const updatedDoc = await ShoppingListModel.findOne(filter);
@@ -157,14 +157,14 @@ export const updateList = async (
     console.log("Updating all items in the list");
     await ItemModel.updateMany(
       { list: updatedDoc.name },
-      { completed: updates.isFinished }
+      { completed: updates.isFinished },
     );
   }
   return updatedDoc.name;
 };
 
 export const checkAllItemsCompletedInList = async (
-  listId: string
+  listId: string,
 ): Promise<boolean> => {
   const foundList = await getShoppingListById(listId);
   return (
@@ -175,7 +175,7 @@ export const checkAllItemsCompletedInList = async (
 
 // Items
 export const addItemToList = async (
-  newItemToAdd: AddItemToListCommand
+  newItemToAdd: AddItemToListCommand,
 ): Promise<IdType> => {
   const { list, name } = newItemToAdd;
   const foundList = await ShoppingListModel.findOne({ name: list })
@@ -200,7 +200,7 @@ export const addItemToList = async (
 };
 
 export const deleteItemFromList = async (
-  itemToDelete: DeleteItemFromList
+  itemToDelete: DeleteItemFromList,
 ): Promise<IdType> => {
   const { id, name, list } = itemToDelete;
   console.log("item to delete::", id, name, list);
@@ -229,7 +229,7 @@ export const deleteItemFromList = async (
 
 export const updateItem = async (
   filter = {},
-  updates = {}
+  updates = {},
 ): Promise<string> => {
   await ItemModel.updateOne(filter, updates);
   const updatedDoc = await ItemModel.findOne(filter);

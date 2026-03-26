@@ -1,7 +1,7 @@
 <script lang="ts">
   import { applyAction, enhance, deserialize } from "$app/forms";
   import { invalidateAll } from "$app/navigation";
-  import { useCompletion } from "ai/svelte";
+  import { Completion } from "@ai-sdk/svelte";
   import { Svroller } from "svrollbar";
   import {
     P,
@@ -28,7 +28,7 @@
   let form: { [key: string]: HTMLFormElement } = {};
   let suggestionError = false;
 
-  const { completion, input, error, handleSubmit } = useCompletion({
+  const { completion, input, error, handleSubmit } = new Completion({
     api: "../api/smart-shopper",
     onError: () => {
       suggestionError = true;

@@ -34,7 +34,7 @@ const ShoppingListSchema: Schema = new Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const ShoppingListModel =

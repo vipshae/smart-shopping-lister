@@ -1,9 +1,9 @@
-import { dbConnect, dbDisconnect } from "$lib/mongo";
-import { redirect, type HandleServerError } from "@sveltejs/kit";
+import { dbConnect } from "$lib/mongo";
+import { redirect, type Handle } from "@sveltejs/kit";
 import { SvelteKitAuth, type SvelteKitAuthConfig } from "@auth/sveltekit";
 import Auth0Provider from "@auth/core/providers/auth0";
 import type { Provider } from "@auth/core/providers";
-import type { Handle } from "@sveltejs/kit";
+import type { ServerInit } from "@sveltejs/kit";
 import {
   AUTH0_CLIENT_ID,
   AUTH0_CLIENT_SECRET,
@@ -11,8 +11,10 @@ import {
 } from "$env/static/private";
 import { sequence } from "@sveltejs/kit/hooks";
 
-// Connect to db on app start
-dbConnect();
+// Connect to db using init hook
+export const init: ServerInit = async () => {
+  await dbConnect();
+};
 
 const config: SvelteKitAuthConfig = {
   providers: [
@@ -33,24 +35,20 @@ const config: SvelteKitAuthConfig = {
   },
 };
 
+// Get the authentication handle from SvelteKitAuth
+const { handle: authenticationHandle } = SvelteKitAuth(config);
+
 // Middleware for protecting certain paths from unauth. access
-const authorizeUser = async ({ event, resolve }) => {
+const authorizeUser: Handle = async ({ event, resolve }) => {
   if (
     event.url.pathname.startsWith("/home") ||
     event.url.pathname.startsWith("/lists")
   ) {
-    const session = await event.locals.getSession();
+    const session = await event.locals.auth();
     if (!session || !session?.user) throw redirect(303, "/login");
   }
   return resolve(event);
 };
 
 // chaining middlewares using sequence hook
-export const handle: Handle = sequence(SvelteKitAuth(config), authorizeUser);
-
-// export const handleError: HandleServerError = ({ error, event }) => {
-//     return {
-//         message: `Server Error: ${error.message}`,
-//         code: error?.code ?? 'UNKNOWN'
-//     };
-// };
+export const handle: Handle = sequence(authenticationHandle, authorizeUser);
