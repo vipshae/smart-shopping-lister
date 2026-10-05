@@ -1,10 +1,10 @@
-import { HfInference } from "@huggingface/inference";
-import { HuggingFaceStream, StreamingTextResponse } from "ai";
+import { InferenceClient } from "@huggingface/inference";
+import { createTextStreamResponse } from "ai";
 import type { RequestHandler } from "./$types";
 import { HUGGINGFACE_API_KEY } from "$env/static/private";
 
 // Create a new HuggingFace Inference instance
-const Hf = new HfInference(HUGGINGFACE_API_KEY);
+const hf = new InferenceClient(HUGGINGFACE_API_KEY);
 
 export const POST = (async ({ request }) => {
   // Extract the `prompt` from the body of the request
@@ -13,12 +13,11 @@ export const POST = (async ({ request }) => {
 
   const actualInput = `Imagine you are shopping for groceries. Can you suggest me three items which I should purchase along with ${prompt} ? Give only suggestion names in a numbered list. Do not include ${prompt} in the suggestions. Remove description text.`;
 
-  const response = Hf.textGenerationStream({
+  const response = hf.textGenerationStream({
     model: goodModel,
     inputs: actualInput,
     parameters: {
       max_new_tokens: 150,
-      // @ts-ignore (this is a valid parameter specifically in OpenAssistant models)
       typical_p: 0.2,
       repetition_penalty: 100,
       truncate: 200,
@@ -26,8 +25,18 @@ export const POST = (async ({ request }) => {
     },
   });
 
-  const stream = HuggingFaceStream(response);
+  const stream = new ReadableStream<string>({
+    async start(controller) {
+      try {
+        for await (const chunk of response) {
+          if (!chunk.token.special) controller.enqueue(chunk.token.text);
+        }
+        controller.close();
+      } catch (error) {
+        controller.error(error);
+      }
+    },
+  });
 
-  // Respond with the stream
-  return new StreamingTextResponse(stream);
+  return createTextStreamResponse({ stream });
 }) satisfies RequestHandler;

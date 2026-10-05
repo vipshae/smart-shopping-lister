@@ -42,15 +42,9 @@ export const actions: Actions = {
       const updatedItemResp = await toggleItem({ id, name, list });
       const allItemsCompleted = await checkAllItemsCompletedInList(listId);
       if (allItemsCompleted === true) {
-        const updatedList = await updateList(
-          { name: list, id: listId },
-          { isFinished: true },
-        );
+        await updateList({ name: list, id: listId }, { isFinished: true });
       } else {
-        const updatedList = await updateList(
-          { name: list, id: listId },
-          { isFinished: false },
-        );
+        await updateList({ name: list, id: listId }, { isFinished: false });
       }
       return updatedItemResp;
     } catch (err: any) {

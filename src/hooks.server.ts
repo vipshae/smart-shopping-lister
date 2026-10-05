@@ -29,7 +29,16 @@ const config: SvelteKitAuthConfig = {
     }) as Provider,
   ],
   secret: SVELTE_AUTH_CONFIG_SECRET,
-  debug: true,
+  callbacks: {
+    redirect({ url, baseUrl }) {
+      try {
+        if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+        return new URL(url).origin === baseUrl ? url : baseUrl;
+      } catch {
+        return baseUrl;
+      }
+    },
+  },
   session: {
     maxAge: 1800, // 30 mins
   },

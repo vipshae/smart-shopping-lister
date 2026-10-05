@@ -17,31 +17,34 @@
     Heading,
   } from "flowbite-svelte";
   import {
-    PlusSolid,
+    CirclePlusSolid,
     ThumbsUpSolid,
     BrainOutline,
   } from "flowbite-svelte-icons";
-  import type { PageData } from "./$types";
+  import type { ActionData, PageData } from "./$types";
   import type { ActionResult } from "@sveltejs/kit";
   export let data: PageData;
+  export let form: ActionData;
   let isSaving: boolean = false;
-  let form: { [key: string]: HTMLFormElement } = {};
+  let itemForms: Record<string, HTMLFormElement> = {};
   let suggestionError = false;
 
-  const { completion, input, error, handleSubmit } = new Completion({
-    api: "../api/smart-shopper",
+  const suggestion = new Completion({
+    api: "/api/smart-shopper",
+    streamProtocol: "text",
     onError: () => {
       suggestionError = true;
     },
   });
 
-  async function handleItemAddSubmit(event: {
-    currentTarget: EventTarget & HTMLFormElement;
-  }) {
-    const data = new FormData(event.currentTarget);
+  async function handleItemAddSubmit(event: SubmitEvent) {
+    const formElement = event.currentTarget as HTMLFormElement | null;
+    if (!formElement) return;
+
+    const data = new FormData(formElement);
     data.append("listName", currentList.name);
     isSaving = true;
-    const response = await fetch(event.currentTarget.action, {
+    const response = await fetch(formElement.action, {
       method: "POST",
       body: data,
     });
@@ -50,7 +53,7 @@
     isSaving = false;
 
     // call the AI submission for completion
-    handleSubmit(event);
+    await suggestion.handleSubmit();
 
     // reset input field
     const inputEl = document.getElementById(
@@ -82,10 +85,10 @@
 {/if}
 
 {#if listFinished}
-  <Alert color="none" class="ml-3 mt-3 bg-green-500 text-white"
-    ><strong>Shopping List: {currentList.name} completed</strong>
-    <ThumbsUpSolid slot="icon" class="w-4 h-4" /></Alert
-  >
+  <Alert color="green" class="ml-3 mt-3 text-white">
+    {#snippet icon()}<ThumbsUpSolid class="w-4 h-4" />{/snippet}
+    <strong>Shopping List: {currentList.name} completed</strong>
+  </Alert>
 {/if}
 
 <!-- Display items, Put on right hand side  -->
@@ -99,7 +102,10 @@
     <form
       method="POST"
       action="?/addItem"
-      on:submit|preventDefault={handleItemAddSubmit}
+      onsubmit={(event) => {
+        event.preventDefault();
+        handleItemAddSubmit(event);
+      }}
     >
       <Label for="itemName" class="block mb-1 mt-6">
         <P italic>
@@ -113,35 +119,33 @@
           class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1"
         >
           <Input
-            size:
-            FormSizeType="sm:text-lg"
-            label="item"
+            size="sm"
             name="itemName"
             id="itemInput"
             placeholder="Item"
-            bind:value={$input}
+            bind:value={suggestion.input}
             required
           />
           <Button id="addItemBtn" type="submit" pill={true} class="!p-2">
             {#if isSaving}
-              <Spinner class="mr-3" size="4" color="white" />
+              <Spinner class="mr-3" size="4" />
             {:else}
-              <PlusSolid class="w-4 h-4" />
+              <CirclePlusSolid class="w-4 h-4" />
             {/if}
           </Button>
         </div>
       </Label>
     </form>
-    <Hr classHr="my-2" />
+    <Hr class="my-2" />
     <Svroller width="25rem" height="20rem" alwaysVisible={true}>
-      <List tag="ul" list="none" class="mt-2 text-gray-500 dark:text-gray-400">
+      <List tag="ul" class="mt-2 list-none text-gray-500 dark:text-gray-400">
         {#each currentList.items as item}
           <Li class="gap-3">
             <div
               class="justify-left items-center space-y-4 sm:flex sm:space-y-1 sm:space-x-1"
             >
               <form
-                bind:this={form[item.name]}
+                bind:this={itemForms[item.name]}
                 method="POST"
                 action="?/toggleItemCompleted&itemId={item.id}"
                 use:enhance={({ formData, formElement }) => {
@@ -162,7 +166,7 @@
                   type="checkbox"
                   checked={item.completed}
                   name="markItemComplete"
-                  on:click={() => form[item.name].requestSubmit()}
+                  onclick={() => itemForms[item.name].requestSubmit()}
                 />
               </form>
 
@@ -206,14 +210,14 @@
   <Card class="ml-6 mt-3 mr-3 w-full max-w-md h-full">
     {#if suggestionError}
       <Alert color="red" dismissable>
-        Error getting Suggestions: {error}
+        Error getting Suggestions: {suggestion.error}
       </Alert>
     {/if}
     <section>
       <BrainOutline /> SmartShopper suggests:
       <div class="flex flex-col w-full max-w-md py-24 mx-auto stretch">
         <P italic weight="bold">
-          {$completion}
+          {suggestion.completion}
         </P>
       </div>
     </section>

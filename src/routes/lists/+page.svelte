@@ -13,7 +13,7 @@
     Input,
   } from "flowbite-svelte";
   import {
-    ShoppingCartSolid,
+    ShoppingBagSolid,
     UserEditSolid,
     ShareNodesSolid,
   } from "flowbite-svelte-icons";
@@ -34,12 +34,14 @@
 {#each data.lists as list}
   <Accordion>
     <AccordionItem>
-      <span slot="header" class="text-base flex gap-2">
-        <ShoppingCartSolid class="mt-0.5" />
+      {#snippet header()}
+        <span class="text-base flex gap-2">
+          <ShoppingBagSolid class="mt-0.5" />
         <span>
           {list.name}
         </span>
-      </span>
+        </span>
+      {/snippet}
       <p class="mb-2 text-gray-500 dark:text-gray-400">
         This list has {list.numOfItems} total items
       </p>
@@ -62,7 +64,7 @@
             size="sm"
             outline
             color="green"
-            on:click={() => (formModal = true)}
+            onclick={() => (formModal = true)}
           >
             <ShareNodesSolid class="w-3 h-3 mr-2" />
             Share List
