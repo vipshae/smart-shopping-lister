@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import type { ItemInterface } from "../interfaces/db.interfaces";
 
 const ItemsSchema: Schema = new mongoose.Schema({

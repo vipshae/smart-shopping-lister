@@ -32,9 +32,11 @@ const toShoppingListDomainFull = (
     id: shoppingListEntity._id.toString(),
     name: shoppingListEntity.name,
     isFinished: shoppingListEntity.isFinished,
-    items: shoppingListEntity.items.map((itemDoc: ItemInterface) => {
-      return toItemDomainFull(itemDoc);
-    }),
+    items: (shoppingListEntity.items.toObject() as ItemInterface[]).map(
+      (itemDoc) => {
+        return toItemDomainFull(itemDoc);
+      },
+    ),
   };
 };
 

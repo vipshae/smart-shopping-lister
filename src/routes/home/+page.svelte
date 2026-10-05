@@ -43,7 +43,7 @@
         <Button size="xs" color="green" type="submit">Add Items</Button>
       </form>
       <Button
-        on:click={gotoHome}
+        onclick={gotoHome}
         size="xs"
         outline
         color="green"
@@ -94,14 +94,13 @@
             value={form?.shoppingListName ?? ""}
             disabled={isSaving}
             required
-            size:
-            FormSizeType="sm:text-xs"
+            size="sm"
           />
         </div>
         <div>
           <GradientButton size="sm" shadow color="blue" type="submit">
             {#if isSaving}
-              <Spinner class="mr-3" size="4" color="white" />
+              <Spinner class="mr-3" size="4" />
               Creating...
             {:else}
               Create List

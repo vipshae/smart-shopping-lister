@@ -1,7 +1,6 @@
-import type { LayoutServerLoad, RequestEvent } from "./$types";
-import { SIGNOUT_CALLBACKURL, SIGNIN_CALLBACKURL } from "$env/static/private";
+import type { LayoutServerLoad } from "./$types";
 
-export const load: LayoutServerLoad = async (event: RequestEvent) => {
+export const load: LayoutServerLoad = async (event) => {
   const session = await event.locals.getSession();
-  return { session, SIGNOUT_CALLBACKURL, SIGNIN_CALLBACKURL };
+  return { session };
 };
