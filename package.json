@@ -55,7 +55,7 @@
     "@auth/core": "^0.41.3",
     "@auth/sveltekit": "^1.11.3",
     "mongoose": "^9.10.3",
-    "zod": "^4.6.5"
+    "zod": "^4.6.7"
   },
   "overrides": {
     "cookie": "0.7.2"
