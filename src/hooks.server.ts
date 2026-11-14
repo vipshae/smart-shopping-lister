@@ -17,6 +17,7 @@ export const init: ServerInit = async () => {
 };
 
 const config: SvelteKitAuthConfig = {
+  trustHost: true,
   providers: [
     Auth0Provider({
       id: "auth0",
