@@ -2,6 +2,19 @@
 
 This app lets you create and save shopping lists for making it easier for you to remember what to buy the next time you go shopping. With the smart feature turned on, you can use AI generated shopping suggestions to help you pick your next item.
 
+## Setup
+
+Use Node.js 26.13.1 (LTS) and npm 12.2.2. With nvm installed:
+
+```bash
+nvm install
+nvm use
+npm install --global npm@12.2.2
+npm ci
+```
+
+The Node.js major version is also declared in `package.json` for Vercel builds.
+
 ## Building
 
 To create a production version of your app:
