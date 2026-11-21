@@ -1,7 +1,7 @@
 import { InferenceClient } from "@huggingface/inference";
 import { createTextStreamResponse } from "ai";
 import type { RequestHandler } from "./$types";
-import { HUGGINGFACE_API_KEY } from "$env/static/private";
+import { HUGGINGFACE_API_KEY } from "$app/env/private";
 
 // Create a new HuggingFace Inference instance
 const hf = new InferenceClient(HUGGINGFACE_API_KEY);

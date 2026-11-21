@@ -1,6 +1,7 @@
 <script lang="ts">
   import "../app.postcss";
-  import { page } from "$app/stores";
+  import { page } from "$app/state";
+  import type { Snippet } from "svelte";
   import {
     Navbar,
     NavBrand,
@@ -14,21 +15,24 @@
     DropdownDivider,
     Button,
   } from "flowbite-svelte";
-  import logo from "$lib/images/smart-shopper-logo.svg";
-  import Footer from "$lib/components/Footer.svelte";
+  import logo from "#lib/images/smart-shopper-logo.svg";
+  import Footer from "#lib/components/Footer.svelte";
   import type { LayoutData } from "./$types";
-  import { signOut } from "@auth/sveltekit/client";
+  import { signOut } from "#lib/auth-client.js";
 
-  $: activeUrl = $page.url.pathname;
-  export let data: LayoutData;
-  $: userLogged = data?.session?.user || false;
-  const logoEndRoute = userLogged ? "/home" : "/";
+  let { data, children }: { data: LayoutData; children: Snippet } = $props();
+  const activeUrl = $derived(page.url.pathname);
+  const userLogged = $derived(data?.session?.user || false);
+  const logoEndRoute = $derived(userLogged ? "/home" : "/");
 
-  const logOut = () => {
-    return signOut({
-      redirect: true,
-      redirectTo: "/",
-    });
+  let authError = $state("");
+  const logOut = async () => {
+    authError = "";
+    try {
+      await signOut();
+    } catch {
+      authError = "Unable to sign out. Please try again.";
+    }
   };
 
   const classes = {
@@ -41,8 +45,8 @@
 
 <svelte:head>
   <title
-    >Smart Shopper App 📝 {$page.data.title
-      ? ` - ${$page?.data.title}`
+    >Smart Shopper App 📝 {page.data.title
+      ? ` - ${page.data.title}`
       : ""}</title
   >
 </svelte:head>
@@ -88,7 +92,9 @@
   </NavUl>
 </Navbar>
 
-<slot />
+{#if authError}<p role="alert" class="m-3 text-red-700">{authError}</p>{/if}
+
+{@render children()}
 
 <Footer />
 

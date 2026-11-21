@@ -1,23 +1,23 @@
-import type { CreateShoppingListCommand } from "$lib/server/commands/create-list.command";
-import type { AddItemToListCommand } from "$lib/server/commands/add-item.command";
+import type { CreateShoppingListCommand } from "#lib/server/commands/create-list.command.js";
+import type { AddItemToListCommand } from "#lib/server/commands/add-item.command.js";
 import type { Document } from "mongoose";
 import mongoose from "mongoose";
-import { ShoppingListModel } from "$db/models/ShoppingList";
-import { ItemModel } from "$db/models/Items";
+import { ShoppingListModel } from "#db/models/ShoppingList.js";
+import { ItemModel } from "#db/models/Items.js";
 import {
   ResourceAlreadyExistError,
   ResourceDoesNotExistError,
-} from "$db/utils/errors";
+} from "#db/utils/errors.js";
 import type {
   ShoppingListInterface,
   ItemInterface,
 } from "../interfaces/db.interfaces";
-import type { Id as IdType } from "$lib/server/domain/id.domain";
-import type { ShoppingList as ShoppingListType } from "$lib/server/domain/shopping-list.domain";
-import type { Item as ItemType } from "$lib/server/domain/item.domain";
-import type { DeleteShoppingListCommand } from "$lib/server/commands/delete-list.command";
-import type { DeleteItemFromList } from "$lib/server/commands/delete-item.command";
-import type { GetShoppingListQuery } from "$lib/server/queries/get-list.query";
+import type { Id as IdType } from "#lib/server/domain/id.domain.js";
+import type { ShoppingList as ShoppingListType } from "#lib/server/domain/shopping-list.domain.js";
+import type { Item as ItemType } from "#lib/server/domain/item.domain.js";
+import type { DeleteShoppingListCommand } from "#lib/server/commands/delete-list.command.js";
+import type { DeleteItemFromList } from "#lib/server/commands/delete-item.command.js";
+import type { GetShoppingListQuery } from "#lib/server/queries/get-list.query.js";
 
 const toDomainId = (dbEntity: Document): IdType => {
   return {

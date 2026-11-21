@@ -22,7 +22,7 @@
     BrainOutline,
   } from "flowbite-svelte-icons";
   import type { ActionData, PageData } from "./$types";
-  import type { ActionResult } from "@sveltejs/kit";
+  import type { ActionResult } from "$app/forms";
   export let data: PageData;
   export let form: ActionData;
   let isSaving: boolean = false;

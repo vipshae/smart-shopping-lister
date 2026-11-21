@@ -7,7 +7,9 @@ declare namespace App {
     code?: string;
     statusCode?: number;
   }
-  // interface Locals {}
+  interface Locals {
+    auth(): Promise<import("#lib/server/auth.js").AuthSession | null>;
+  }
   // interface PageData {}
   // interface Platform {}
 }
