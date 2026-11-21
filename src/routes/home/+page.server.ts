@@ -1,7 +1,7 @@
 import { redirect, fail, type Actions } from "@sveltejs/kit";
 import type { PageServerLoad } from "../$types";
-import type { CreateShoppingListCommand } from "$lib/server/commands/create-list.command";
-import { createShoppingList } from "$db/utils/shoppingList.repository";
+import type { CreateShoppingListCommand } from "#lib/server/commands/create-list.command.js";
+import { createShoppingList } from "#db/utils/shoppingList.repository.js";
 
 export const load: PageServerLoad = async ({ parent }) => {
   const { session } = await parent();

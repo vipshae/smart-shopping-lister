@@ -5,11 +5,11 @@ import {
   toggleItem,
   checkAllItemsCompletedInList,
   updateList,
-} from "$db/utils/shoppingList.repository";
+} from "#db/utils/shoppingList.repository.js";
 import { error, type Actions, fail, redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
-import type { AddItemToListCommand } from "$lib/server/commands/add-item.command";
-import type { DeleteItemFromList } from "$lib/server/commands/delete-item.command";
+import type { AddItemToListCommand } from "#lib/server/commands/add-item.command.js";
+import type { DeleteItemFromList } from "#lib/server/commands/delete-item.command.js";
 
 export const load: PageServerLoad = async ({ params, parent }) => {
   const { session } = await parent();

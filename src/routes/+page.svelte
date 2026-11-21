@@ -1,5 +1,5 @@
 <script lang="ts">
-  import hero from "$lib/images/smart-shopper-hero.png";
+  import hero from "#lib/images/smart-shopper-hero.png";
   import { Button } from "flowbite-svelte";
   import { ArrowRightOutline } from "flowbite-svelte-icons";
   import type { PageData } from "./$types";
